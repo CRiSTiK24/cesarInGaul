@@ -1,4 +1,4 @@
-class City:
+class General:
     def __init__(self, name, longitude, latitude, troops, faction):
         self.name = name
         self.longitude = longitude

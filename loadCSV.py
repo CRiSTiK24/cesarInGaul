@@ -7,5 +7,3 @@ def loadDatabase():
     gallia = ["Gallia Aquitania","Gallia Belgica","Gallia Lugdunensis","Gallia Narbonensis"]
     gallicCityData = filteredCityData[filteredCityData['Province'].isin(gallia)]
     return gallicCityData
-
-print(loadDatabase())

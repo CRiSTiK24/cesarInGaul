@@ -1,27 +1,25 @@
 import geopandas as gpd
 import pygame
 import loadCSV
+import GameInit.factionInit as factions
+import Calculations.pixelLatitudeLongitudeConvertors as pixelCalculations
 from ObjectClasses.city import City
 
 # Load your filtered DataFrame with Roman cities using loadCSV module
 filteredCityData = loadCSV.loadDatabase()
 
+arrayFactions = factions.init()
+
 # Create a list of City objects
-cities = [City(row['Ancient Toponym'], row['Longitude (X)'], row['Latitude (Y)']) for index, row in filteredCityData.iterrows()]
+cities = [City(row['Ancient Toponym'], row['Longitude (X)'], row['Latitude (Y)'], 50, arrayFactions.get("RO")) for index, row in filteredCityData.iterrows()]
 
 # Set up Pygame
 pygame.init()
-screen_width, screen_height = 1000, 1000  # Adjust the window size as needed
+screen_width, screen_height = 1280, 1280  # Adjust the window size as needed
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Roman Cities Map')
 
-# Map the City objects to screen coordinates with padding
-max_longitude, min_longitude = max(city.longitude for city in cities), min(city.longitude for city in cities)
-max_latitude, min_latitude = max(city.latitude for city in cities), min(city.latitude for city in cities)
-
-for city in cities:
-    city.screen_x = (city.longitude - min_longitude) / (max_longitude - min_longitude) * (screen_width*0.9)
-    city.screen_y = screen_height - ((city.latitude - min_latitude) / (max_latitude - min_latitude) * (screen_height*0.9))
+gaul_image = pygame.image.load('staticmap.png')
 
 # Pygame main loop
 running = True
@@ -30,16 +28,19 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    screen.fill((255, 255, 255))  # Fill the screen with white
+    screen.fill((255, 255, 255))
+
+    screen.blit(gaul_image, (0, 0))
 
     # Draw cities as points on the screen
     for city in cities:
-        pygame.draw.circle(screen, (0, 0, 255), (int(city.screen_x), int(city.screen_y)), 5)
+        pygame.draw.circle(screen, city.faction.color, (pixelCalculations.getPointXY(city.latitude, city.longitude)), 5)
 
-        # Display city names
-        font = pygame.font.Font(None, 24)
+        font = pygame.font.Font(None, 12)
         text = font.render(city.name, True, (0, 0, 0))
-        screen.blit(text, (int(city.screen_x), int(city.screen_y) - 10))
+        screen.blit(text, (pixelCalculations.getPointXY(city.latitude, city.longitude)))
+
+
 
     pygame.display.flip()
 

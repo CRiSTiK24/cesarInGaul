@@ -2,8 +2,8 @@ import pygame
 import loadCSV
 import GameInit.faction as Factions
 import GameInit.background as Background
-import Calculations.pixelLatitudeLongitudeConvertors as pixelCalculations
 from ObjectClasses.city import City
+import AuxFiles.colorConverter as ColorConverter
 
 # Load your filtered DataFrame with Roman cities using loadCSV module
 filteredCityData = loadCSV.loadDatabase()
@@ -11,11 +11,21 @@ filteredCityData = loadCSV.loadDatabase()
 arrayFactions = Factions.init()
 
 # Create a list of City objects
-cities = [City(row['Ancient Toponym'], row['Longitude (X)'], row['Latitude (Y)'], 50, arrayFactions.get("RO")) for index, row in filteredCityData.iterrows()]
+cities = [City(row['Ancient Toponym'], row['Longitude (X)'], row['Latitude (Y)'], 50, arrayFactions.get("N")) for
+          index, row in filteredCityData.iterrows()]
+
+gmap = Background.gmplotInit()
 
 # Set up Pygame
 pygame.init()
-gaul_image, screen = Background.init()
+gaul_image = pygame.image.load('cig.jpg')
+screen = pygame.display.set_mode((600, 600))
+
+for city in cities:
+    gmap.marker(lat=city.latitude, lng=city.longitude, color=ColorConverter.rgb_to_hex(city.faction.color),
+                title=city.name)
+
+gmap.draw("map.html")
 
 # Pygame main loop
 running = True
@@ -29,16 +39,8 @@ while running:
     screen.blit(gaul_image, (0, 0))
 
     # Draw cities as points on the screen
-    #for city in cities:
-    #    pygame.draw.circle(screen, city.faction.color, (pixelCalculations.getPointXY(city.latitude, city.longitude)), 5)
-
-    #    font = pygame.font.Font(None, 12)
-    #    text = font.render(city.name, True, (0, 0, 0))
-    #    screen.blit(text, (pixelCalculations.getPointXY(city.latitude, city.longitude)))
-
-
-
     pygame.display.flip()
+
 
 # Quit Pygame
 pygame.quit()
